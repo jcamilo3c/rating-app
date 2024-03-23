@@ -5,10 +5,11 @@
     BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
     sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
     Noto Color Emoji;
-  --offset-y: 169px;
+  --offset-y: 169px; /* sum of header and footer heights and position of header */
   /* Colors */
   --white: #fff;
   --blue: #0096cc;
+  --dark-blue: #0086b6;
   --red: #d56767;
   --green: #30aea3;
   --gray: #e6f1f5;
@@ -100,6 +101,11 @@ img {
 
 button {
   cursor: pointer;
+
+  :disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
 }
 
 @media (prefers-color-scheme: light) {

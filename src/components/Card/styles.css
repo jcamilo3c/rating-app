@@ -13,28 +13,13 @@
   z-index: 8;
 }
 
-.card__choice {
+.card__choice-title {
+  background: linear-gradient(0deg, #00000088 20%, transparent 40%);
   border: none;
   display: flex;
   position: absolute;
   inset: 0;
   padding: 16px;
-}
-
-.card__choice-title {
   color: var(--white);
   align-items: flex-end;
-  background: linear-gradient(0deg, #00000088 20%, transparent 40%);
-}
-
-.card__choice-nope {
-  color: var(--red);
-  font-size: 2.5rem;
-  justify-content: flex-start;
-}
-
-.card__choice-like {
-  color: var(--green);
-  font-size: 2.5rem;
-  justify-content: flex-end;
 }

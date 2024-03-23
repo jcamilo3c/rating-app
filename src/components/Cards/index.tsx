@@ -1,13 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchImages } from "@/apis";
 import { type ImageDetail } from "@/types";
 import Card from "@/components/Card";
+import Loader from "@/components/Loader";
+import { LIKE, DISLIKE } from "@/constants";
 import "./styles.css";
 
 export default function Cards() {
+  const cardListEl = useRef<HTMLUListElement>(null);
+
+  const [likedPics, setLikedPics] = useState<(number | string)[]>([]);
+  const [discardedPics, setDiscardedPics] = useState<(number | string)[]>([]);
+  const [actionClick, setActionClick] = useState<string>("");
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+
   const { isLoading, isError, isSuccess, data } = useQuery({
     queryKey: ["images"],
     queryFn: () => fetchImages(),
@@ -20,12 +29,54 @@ export default function Cards() {
     }
   }, [cards]);
 
-  const handleLikePic = () => {};
+  useEffect(() => {
+    sessionStorage.setItem("liked-pics", JSON.stringify(likedPics));
+  }, [likedPics]);
 
-  const handleDislikePic = () => {};
+  useEffect(() => {
+    sessionStorage.setItem("discarded-pics", JSON.stringify(discardedPics));
+  }, [discardedPics]);
+
+  const remainingCards = useMemo(() => {
+    return cards.length - (likedPics.length + discardedPics.length);
+  }, [cards, likedPics, discardedPics]);
+
+  const areButtonsDisabled = useMemo(() => {
+    return isAnimating || !Boolean(remainingCards);
+  }, [isAnimating, remainingCards]);
+
+  const handleActionPic = useCallback(
+    (action: string) => {
+      if (cardListEl.current) {
+        setIsAnimating(true);
+        setActionClick(action);
+
+        const childNodes = cardListEl.current.children;
+        const currentPic = childNodes[childNodes.length - 1];
+        const currentPicId = currentPic.getAttribute("data-id");
+
+        if (currentPicId && action === LIKE) {
+          setLikedPics([...likedPics, currentPicId]);
+          currentPic.classList.add(`cards__item--${LIKE}`);
+        }
+
+        if (currentPicId && action === DISLIKE) {
+          setDiscardedPics([...discardedPics, currentPicId]);
+          currentPic.classList.add(`cards__item--${DISLIKE}`);
+        }
+
+        setTimeout(() => {
+          currentPic.remove();
+          setIsAnimating(false);
+          setActionClick("");
+        }, 500);
+      }
+    },
+    [cardListEl, likedPics, discardedPics]
+  );
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <Loader />;
   }
 
   if (isError) {
@@ -34,11 +85,31 @@ export default function Cards() {
 
   return (
     <>
-      <ul className="cards">
+      {!remainingCards && (
+        <p className="cards__no-results">
+          Hey ! There are no more photos to rate so far 😢
+        </p>
+      )}
+      <ul className="cards" ref={cardListEl}>
         {isSuccess &&
           cards.map((card: ImageDetail) => (
-            <li key={card.id}>
-              <Card imageUrl={card.download_url} author={card.author} />
+            <li className="cards__item" key={card.id} data-id={card.id}>
+              <Card imageUrl={card.download_url} author={card.author}>
+                <div
+                  className={`cards__item-choice cards__item-choice--nope ${
+                    actionClick === DISLIKE ? "cards__item-choice--show" : null
+                  }`}
+                >
+                  NOPE
+                </div>
+                <div
+                  className={`cards__item-choice cards__item-choice--like ${
+                    actionClick === LIKE ? "cards__item-choice--show" : null
+                  }`}
+                >
+                  LIKE
+                </div>
+              </Card>
             </li>
           ))}
       </ul>
@@ -46,7 +117,8 @@ export default function Cards() {
         <button
           className="cards__buttons"
           aria-label="Click to dislike picture"
-          onClick={handleLikePic}
+          disabled={areButtonsDisabled}
+          onClick={() => handleActionPic(DISLIKE)}
         >
           <span className="cards__buttons-icon nope">
             <svg
@@ -64,7 +136,8 @@ export default function Cards() {
         <button
           className="cards__buttons"
           aria-label="Click to Like picture"
-          onClick={handleDislikePic}
+          disabled={areButtonsDisabled}
+          onClick={() => handleActionPic(LIKE)}
         >
           <span className="cards__buttons-icon like">
             <svg
