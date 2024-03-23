@@ -15,7 +15,7 @@ export default function Home() {
   });
 
   return (
-    <section className={styles.section}>
+    <section className={`${styles.section} center`}>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <Cards />
       </HydrationBoundary>

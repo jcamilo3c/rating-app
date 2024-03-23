@@ -1,0 +1,21 @@
+.container {
+  padding: 0 24px;
+}
+
+.imgTitle {
+  margin-bottom: 4px;
+}
+
+.imagesContainer {
+  position: relative;
+  margin: 12px 0;
+  overflow-y: auto;
+}
+
+.article {
+  margin-bottom: 8px;
+}
+
+.image {
+  border-radius: 12px;
+}

@@ -12,38 +12,53 @@ import "./styles.css";
 export default function Cards() {
   const cardListEl = useRef<HTMLUListElement>(null);
 
-  const [likedPics, setLikedPics] = useState<(number | string)[]>([]);
-  const [discardedPics, setDiscardedPics] = useState<(number | string)[]>([]);
-  const [actionClick, setActionClick] = useState<string>("");
-  const [isAnimating, setIsAnimating] = useState<boolean>(false);
-
   const { isLoading, isError, isSuccess, data } = useQuery({
     queryKey: ["images"],
     queryFn: () => fetchImages(),
   });
-  const cards = data?.data || [];
 
-  useEffect(() => {
-    if (cards) {
-      sessionStorage.setItem("cards", JSON.stringify(cards));
+  const [likedPics, setLikedPics] = useState<ImageDetail[]>([]);
+  const [discardedPics, setDiscardedPics] = useState<ImageDetail[]>([]);
+  const [actionClick, setActionClick] = useState<string>("");
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+
+  const allCards = data?.data || [];
+
+  const remainingCards = useMemo(() => {
+    if (allCards.length) {
+      const cardIds = likedPics
+        .concat(discardedPics)
+        .map((card: ImageDetail) => card.id);
+
+      const availableCards = allCards.filter(
+        (card: ImageDetail) => !cardIds.includes(card.id)
+      );
+      return availableCards;
     }
-  }, [cards]);
+    return [];
+  }, [allCards, likedPics, discardedPics]);
+
+  const areButtonsDisabled = useMemo(() => {
+    return isAnimating || !Boolean(remainingCards.length);
+  }, [isAnimating, remainingCards]);
 
   useEffect(() => {
-    sessionStorage.setItem("liked-pics", JSON.stringify(likedPics));
+    if (remainingCards.length) {
+      sessionStorage.setItem("remaining-pics", JSON.stringify(remainingCards));
+    }
+  }, [remainingCards]);
+
+  useEffect(() => {
+    if (likedPics.length) {
+      sessionStorage.setItem("liked-pics", JSON.stringify(likedPics));
+    }
   }, [likedPics]);
 
   useEffect(() => {
-    sessionStorage.setItem("discarded-pics", JSON.stringify(discardedPics));
+    if (discardedPics.length) {
+      sessionStorage.setItem("discarded-pics", JSON.stringify(discardedPics));
+    }
   }, [discardedPics]);
-
-  const remainingCards = useMemo(() => {
-    return cards.length - (likedPics.length + discardedPics.length);
-  }, [cards, likedPics, discardedPics]);
-
-  const areButtonsDisabled = useMemo(() => {
-    return isAnimating || !Boolean(remainingCards);
-  }, [isAnimating, remainingCards]);
 
   const handleActionPic = useCallback(
     (action: string) => {
@@ -56,12 +71,18 @@ export default function Cards() {
         const currentPicId = currentPic.getAttribute("data-id");
 
         if (currentPicId && action === LIKE) {
-          setLikedPics([...likedPics, currentPicId]);
+          const likedCard = allCards.find(
+            (card: ImageDetail) => card.id === currentPicId
+          );
+          setLikedPics([...likedPics, likedCard]);
           currentPic.classList.add(`cards__item--${LIKE}`);
         }
 
         if (currentPicId && action === DISLIKE) {
-          setDiscardedPics([...discardedPics, currentPicId]);
+          const discardedCard = allCards.find(
+            (card: ImageDetail) => card.id === currentPicId
+          );
+          setDiscardedPics([...discardedPics, discardedCard]);
           currentPic.classList.add(`cards__item--${DISLIKE}`);
         }
 
@@ -72,7 +93,7 @@ export default function Cards() {
         }, 500);
       }
     },
-    [cardListEl, likedPics, discardedPics]
+    [cardListEl, likedPics, discardedPics, allCards]
   );
 
   if (isLoading) {
@@ -85,14 +106,14 @@ export default function Cards() {
 
   return (
     <>
-      {!remainingCards && (
+      {!remainingCards.length && (
         <p className="cards__no-results">
           Hey ! There are no more photos to rate so far 😢
         </p>
       )}
       <ul className="cards" ref={cardListEl}>
         {isSuccess &&
-          cards.map((card: ImageDetail) => (
+          allCards.map((card: ImageDetail) => (
             <li className="cards__item" key={card.id} data-id={card.id}>
               <Card imageUrl={card.download_url} author={card.author}>
                 <div

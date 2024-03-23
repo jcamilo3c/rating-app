@@ -32,8 +32,6 @@
 .section {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   margin: 24px 0;
   position: relative;
   top: 53px;
