@@ -5,7 +5,7 @@
     BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
     sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
     Noto Color Emoji;
-  --offset-y: 169px; /* sum of header and footer heights and position of header */
+  --offset-y: 166px; /* sum of header and footer heights and position of header */
   /* Colors */
   --white: #fff;
   --blue: #0096cc;
