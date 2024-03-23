@@ -1,0 +1,32 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  width: 100%;
+}
+
+.card {
+  display: flex;
+  padding: 3rem;
+}
+
+/* Enable hover only on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+}
+
+/* Tablet and Smaller Desktop */
+@media (min-width: 701px) and (max-width: 1120px) {
+  .main {
+    padding: 6rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1121px) {
+  .main {
+    padding: 6rem;
+  }
+}

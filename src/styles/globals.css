@@ -1,0 +1,87 @@
+:root {
+  --max-width: 1280px;
+  --border-radius: 12px;
+  --font-size: 14px;
+  --font-ubuntu: Ubuntu, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
+    sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    Noto Color Emoji;
+  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
+    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
+    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  font-size: var(--font-size);
+  font-family: var(--font-ubuntu);
+  line-height: 1.5;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  color: rgb(var(--foreground-rgb));
+  font-size: inherit;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-mono);
+}
+
+p,
+a {
+  font-family: var(--font-ubuntu);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+@media (prefers-color-scheme: light) {
+  html {
+    color-scheme: light;
+  }
+}
+
+/* Helpers */
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
