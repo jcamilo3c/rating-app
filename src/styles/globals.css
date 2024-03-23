@@ -1,15 +1,17 @@
 :root {
-  --max-width: 1280px;
-  --border-radius: 12px;
+  --max-width: 1024px;
   --font-size: 14px;
   --font-ubuntu: Ubuntu, ui-sans-serif, system-ui, -apple-system,
     BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans,
     sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
     Noto Color Emoji;
-  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
-    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
-    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
-
+  --offset-y: 169px;
+  /* Colors */
+  --white: #fff;
+  --blue: #0096cc;
+  --red: #d56767;
+  --green: #30aea3;
+  --gray: #e6f1f5;
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
@@ -23,8 +25,9 @@
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  margin: 0 auto;
+  max-width: var(--max-width);
+  overflow: hidden;
 }
 
 html {
@@ -54,9 +57,20 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-mono);
+  font-weight: 500;
 }
 
+p,
+a {
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
 p,
 a {
   font-family: var(--font-ubuntu);
@@ -67,9 +81,25 @@ a {
   text-decoration: none;
 }
 
+ul {
+  list-style-type: none;
+}
+
+ul li {
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+}
+
 img {
   display: block;
-  max-width: 100%;
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+button {
+  cursor: pointer;
 }
 
 @media (prefers-color-scheme: light) {
