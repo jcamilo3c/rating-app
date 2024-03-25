@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchImages } from "@/apis";
 import { type ImageDetail } from "@/types";
@@ -8,6 +8,9 @@ import Card from "@/components/Card";
 import Loader from "@/components/Loader";
 import { LIKE, DISLIKE } from "@/constants";
 import "./styles.css";
+
+let likedPics: ImageDetail[] = [];
+let discardedPics: ImageDetail[] = [];
 
 export default function Cards() {
   const cardListEl = useRef<HTMLUListElement>(null);
@@ -17,12 +20,19 @@ export default function Cards() {
     queryFn: () => fetchImages(),
   });
 
-  const [likedPics, setLikedPics] = useState<ImageDetail[]>([]);
-  const [discardedPics, setDiscardedPics] = useState<ImageDetail[]>([]);
+  const allCards = data?.data || [];
+
   const [actionClick, setActionClick] = useState<string>("");
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
-  const allCards = data?.data || [];
+  useEffect(() => {
+    likedPics = sessionStorage.getItem("liked-pics")
+      ? JSON.parse(sessionStorage.getItem("liked-pics") || "")
+      : likedPics;
+    discardedPics = sessionStorage.getItem("discarded-pics")
+      ? JSON.parse(sessionStorage.getItem("discarded-pics") || "")
+      : discardedPics;
+  }, []);
 
   const remainingCards = useMemo(() => {
     if (allCards.length) {
@@ -36,28 +46,29 @@ export default function Cards() {
       return availableCards;
     }
     return [];
+  }, [allCards]);
+
+  const areEmptyCards = useMemo(() => {
+    return allCards.length - (likedPics.length + discardedPics.length) === 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allCards, likedPics, discardedPics]);
 
   const areButtonsDisabled = useMemo(() => {
-    return isAnimating || !Boolean(remainingCards.length);
-  }, [isAnimating, remainingCards]);
-
-  useEffect(() => {
-    if (remainingCards.length) {
-      sessionStorage.setItem("remaining-pics", JSON.stringify(remainingCards));
-    }
-  }, [remainingCards]);
+    return isAnimating || areEmptyCards;
+  }, [isAnimating, areEmptyCards]);
 
   useEffect(() => {
     if (likedPics.length) {
       sessionStorage.setItem("liked-pics", JSON.stringify(likedPics));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [likedPics]);
 
   useEffect(() => {
     if (discardedPics.length) {
       sessionStorage.setItem("discarded-pics", JSON.stringify(discardedPics));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [discardedPics]);
 
   const handleActionPic = useCallback(
@@ -74,16 +85,16 @@ export default function Cards() {
           const likedCard = allCards.find(
             (card: ImageDetail) => card.id === currentPicId
           );
-          setLikedPics([...likedPics, likedCard]);
           currentPic.classList.add(`cards__item--${LIKE}`);
+          likedPics = [...likedPics, likedCard];
         }
 
         if (currentPicId && action === DISLIKE) {
           const discardedCard = allCards.find(
             (card: ImageDetail) => card.id === currentPicId
           );
-          setDiscardedPics([...discardedPics, discardedCard]);
           currentPic.classList.add(`cards__item--${DISLIKE}`);
+          discardedPics = [...discardedPics, discardedCard];
         }
 
         setTimeout(() => {
@@ -93,7 +104,8 @@ export default function Cards() {
         }, 500);
       }
     },
-    [cardListEl, likedPics, discardedPics, allCards]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [cardListEl, allCards, likedPics, discardedPics]
   );
 
   if (isLoading) {
@@ -106,14 +118,14 @@ export default function Cards() {
 
   return (
     <>
-      {!remainingCards.length && (
+      {areEmptyCards && (
         <p className="cards__no-results">
           Hey ! There are no more photos to rate so far 😢
         </p>
       )}
       <ul className="cards" ref={cardListEl}>
         {isSuccess &&
-          allCards.map((card: ImageDetail) => (
+          remainingCards.map((card: ImageDetail) => (
             <li className="cards__item" key={card.id} data-id={card.id}>
               <Card imageUrl={card.download_url} author={card.author}>
                 <div

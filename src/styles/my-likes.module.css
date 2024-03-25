@@ -19,3 +19,12 @@
 .image {
   border-radius: 12px;
 }
+
+.clearBtn {
+  border: none;
+  background-color: var(--red);
+  font-size: 1.2rem;
+  color: var(--white);
+  margin-bottom: 4px;
+  padding: 4px 8px;
+}
